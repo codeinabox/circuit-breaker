@@ -1,0 +1,10 @@
+/vendor/
+/composer.lock
+
+# IDEs
+nbproject
+.buildpath
+.metadata
+.project
+.settings/
+.idea/
