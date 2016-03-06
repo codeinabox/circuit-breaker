@@ -4,27 +4,31 @@ namespace CodeInABox;
 
 use Mockery;
 
-class CircuitBreakerTest extends \PHPUnit_Framework_TestCase {
-
-    protected function createMockCache() {
+class CircuitBreakerTest extends \PHPUnit_Framework_TestCase
+{
+    protected function createMockCache()
+    {
         return Mockery::mock('\Doctrine\Common\Cache\Cache');
     }
 
-    public function test_ShouldHaveNoFailuresInitially() {
+    public function testShouldHaveNoFailuresInitially()
+    {
         $cache = $this->createMockCache();
         $cache->shouldReceive('contains')->once()->andReturn(false);
         $circuit = new CircuitBreaker($cache, 'resource');
         $this->assertEquals(0, $circuit->getFailureCount());
     }
 
-    public function test_ShouldNotBeBrokenInitially() {
+    public function testShouldNotBeBrokenInitially()
+    {
         $cache = $this->createMockCache();
         $cache->shouldReceive('contains')->once()->andReturn(false);
         $circuit = new CircuitBreaker($cache, 'resource', 6);
         $this->assertFalse($circuit->isBroken());
     }
 
-    public function test_ShouldHaveFetchFailuresFromCache() {
+    public function testShouldHaveFetchFailuresFromCache()
+    {
         $cache = $this->createMockCache();
         $cache->shouldReceive('contains')->once()->andReturn(true);
         $cache->shouldReceive('fetch')->once()->andReturn(10);
@@ -32,7 +36,8 @@ class CircuitBreakerTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(10, $circuit->getFailureCount());
     }
 
-    public function test_ShouldBeBrokenIfFailuresExceedThreshold() {
+    public function testShouldBeBrokenIfFailuresExceedThreshold()
+    {
         $cache = $this->createMockCache();
         $cache->shouldReceive('contains')->once()->andReturn(true);
         $cache->shouldReceive('fetch')->once()->andReturn(10);
@@ -40,7 +45,8 @@ class CircuitBreakerTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($circuit->isBroken());
     }
 
-    public function test_ShouldOnFirstFailureSetCountToOne() {
+    public function testShouldOnFirstFailureSetCountToOne()
+    {
         $checkTimeout = 60;
         $cache = $this->createMockCache();
         $cache->shouldReceive('contains')->once()->andReturn(false);
@@ -49,7 +55,8 @@ class CircuitBreakerTest extends \PHPUnit_Framework_TestCase {
         $circuit->failure();
     }
 
-    public function test_ShouldIncrementCountOnFailure() {
+    public function testShouldIncrementCountOnFailure()
+    {
         $checkTimeout = 60;
         $cache = $this->createMockCache();
         $cache->shouldReceive('contains')->once()->andReturn(true);
@@ -59,12 +66,12 @@ class CircuitBreakerTest extends \PHPUnit_Framework_TestCase {
         $circuit->failure();
     }
 
-    public function test_ShouldResetCountOnSuccess() {
+    public function testShouldResetCountOnSuccess()
+    {
         $checkTimeout = 60;
         $cache = $this->createMockCache();
         $cache->shouldReceive('save')->once()->with(Mockery::any(), 0, $checkTimeout);
         $circuit = new CircuitBreaker($cache, 'resource', 10, $checkTimeout);
         $circuit->success();
     }
-
 }

@@ -2,87 +2,92 @@
 
 namespace CodeInABox;
 
-use \Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\Cache;
 
-class CircuitBreaker {
-
-    const CACHE_PREFIX = 'CircuitBreaker_failures_';
+class CircuitBreaker
+{
+    const CACHE_PREFIX = 'CircuitBreakerfailures_';
 
     /**
      * @var \Doctrine\Common\Cache\Cache
      */
-    protected $_cache;
+    protected $cache;
 
     /**
-     * The cache key for this circuit
+     * The cache key for this circuit.
      *
      * @var string
      */
-    protected $_key;
+    protected $key;
 
     /**
-     * @var integer
+     * @var int
      */
-    protected $_failureThreshold;
+    protected $failureThreshold;
 
     /**
-     * @var integer
+     * @var int
      */
-    protected $_checkTimeout;
+    protected $checkTimeout;
 
     /**
-     * 
      * @param \Doctrine\Common\Cache\Cache $cache
-     * @param string $resource
-     * @param int $failureThreshold
-     * @param int $checkTimeout
+     * @param string                       $resource
+     * @param int                          $failureThreshold
+     * @param int                          $checkTimeout
      */
-    public function __construct(Cache $cache, $resource, $failureThreshold = 5, $checkTimeout = 60) {
-        $this->_cache = $cache;
-        $this->_key = self::CACHE_PREFIX . $resource;
-        $this->_failureThreshold = (int) $failureThreshold;
-        $this->_checkTimeout = (int) $checkTimeout;
+    public function __construct(Cache $cache, $resource, $failureThreshold = 5, $checkTimeout = 60)
+    {
+        $this->cache = $cache;
+        $this->key = self::CACHE_PREFIX.$resource;
+        $this->failureThreshold = (int) $failureThreshold;
+        $this->checkTimeout = (int) $checkTimeout;
     }
 
     /**
-     * Get the failure count for the resource
+     * Get the failure count for the resource.
      *
      * @return int
      */
-    public function getFailureCount() {
-        return $this->_cache->contains($this->_key) ? (int) $this->_cache->fetch($this->_key) : 0;
+    public function getFailureCount()
+    {
+        return $this->cache->contains($this->key) ? (int) $this->cache->fetch($this->key) : 0;
     }
 
     /**
-     *
-     * @return boolean
+     * @return bool
      */
-    public function isBroken() {
-        return $this->getFailureCount() > $this->_failureThreshold;
+    public function isBroken()
+    {
+        return $this->getFailureCount() > $this->failureThreshold;
     }
 
-    protected function _saveFailureCount($count) {
-        $this->_cache->save($this->_key, (int) $count, $this->_checkTimeout);
+    protected function saveFailureCount($count)
+    {
+        $this->cache->save($this->key, (int) $count, $this->checkTimeout);
     }
 
     /**
-     * Increment the failure count
+     * Increment the failure count.
      *
      * @return self
      */
-    public function failure() {
-        $this->_saveFailureCount($this->getFailureCount() + 1);
+    public function failure()
+    {
+        $this->saveFailureCount($this->getFailureCount() + 1);
+
         return $this;
     }
 
     /**
-     * Mark the resource in success state and resets the failure count for the resource
+     * Mark the resource in success state and resets the failure count for the resource.
      *
      * @return self
      */
-    public function success() {
-        $this->_saveFailureCount(0);
+    public function success()
+    {
+        $this->saveFailureCount(0);
+
         return $this;
     }
-
 }
