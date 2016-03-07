@@ -7,10 +7,13 @@ This implements the circuit breaker design pattern using a Doctrine cache adapto
 Tests
 -----
 
-To run the test suite, you need `Composer`_
+To run the test suite
 
-    $ php composer.phar install --dev
-    $ vendor/bin/phpunit
+```bash
+php composer.phar install --dev
+./vendor/bin/phpspec run
+
+```
 
 
 License
